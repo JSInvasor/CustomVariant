@@ -34,7 +34,7 @@ pub fn packet(ip_h_bytes: [20]u8, tcp_h: *TcpHeader, psd_h: *PsdHeader) [40]u8 {
     var fin_buf: [40]u8 = undefined;
 
     std.mem.copyForwards(u8, fin_buf[0..ip_h_bytes.len], &ip_h_bytes);
-    std.mem.copyForwards(u8, fin_buf[ip_h_bytes.len..tcp_hdr.len], &tcp_hdr);
+    std.mem.copyForwards(u8, fin_buf[ip_h_bytes.len .. ip_h_bytes.len + tcp_hdr.len], &tcp_hdr);
 
     return fin_buf;
 }

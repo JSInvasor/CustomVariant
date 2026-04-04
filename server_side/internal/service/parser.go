@@ -22,8 +22,6 @@ func (s *ParserService) Parse(payload string) (string, bool, error) {
 	if len(args) < 2 {
 		return "", false, fmt.Errorf("invalid command")
 	}
-	fmt.Println(len(args))
-
 	cmdName := args[0]
 
 	if string(payload[0]) == domain.PREFIX { // method or command
@@ -54,17 +52,12 @@ func (s *ParserService) Parse(payload string) (string, bool, error) {
 	}
 
 	for _, command := range domain.CommandsMap {
-		fmt.Println(command.Name)
-		fmt.Println(cmdName)
-
 		if command.Name == cmdName {
 			return "", false, nil
 		}
-
-		return "", false, fmt.Errorf("unknown command: %s", cmdName)
 	}
 
-	return "", false, fmt.Errorf("unknown command")
+	return "", false, fmt.Errorf("unknown command: %s", cmdName)
 }
 
 func isInvalidPort(port string) bool {
@@ -72,7 +65,7 @@ func isInvalidPort(port string) bool {
 	if err != nil {
 		return true
 	}
-	return p < 0 && p >= 65536
+	return p < 0 || p >= 65536
 }
 
 func isInvalidDuration(duration string) bool {
@@ -80,5 +73,5 @@ func isInvalidDuration(duration string) bool {
 	if err != nil {
 		return true
 	}
-	return d < 0 && d >= domain.MAX_DURATION
+	return d < 0 || d >= domain.MAX_DURATION
 }
