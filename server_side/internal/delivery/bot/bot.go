@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"servers/domain"
 	"servers/internal/config"
@@ -52,22 +51,11 @@ func (h Handler) keepAlive() {
 	var b = make([]byte, 1<<10)
 
 	for {
-		n, err := h.bot.Conn.Read(b)
-		if err != nil {
-			return
-		}
-
-		_, err = h.bot.Conn.Write(b[0:n])
-		if err != nil {
-			return
-		}
-
-		_, err = io.Copy(h.bot.Conn, h.bot.Conn)
+		_, err := h.bot.Conn.Read(b)
 		if err != nil {
 			return
 		}
 	}
-
 }
 
 func (h *Handler) Disconnect() {

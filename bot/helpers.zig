@@ -2,10 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn getArch() []const u8 {
-    // std.debug.print("ARCH is: {s}\n", .{arch});
-
-    // TODO: fix
-    return "x86_64";
+    return @tagName(builtin.cpu.arch);
 }
 
 const use_libc = builtin.link_libc or switch (builtin.os.tag) {
@@ -99,15 +96,15 @@ pub fn writeBigEndianU32(buf: []u8, value: u32) void {
 
 pub fn calculateChecksum(header: []u8) u16 {
     var sum: u32 = 0;
+    const even_len = header.len & ~@as(usize, 1);
 
-    for (header, 0..) |byte, index| {
-        if (index % 2 == 0) {
-            sum += @as(u16, @intCast(byte)) << 8 | @as(u16, @intCast(header[index + 1]));
-        }
+    var i: usize = 0;
+    while (i < even_len) : (i += 2) {
+        sum += @as(u32, header[i]) << 8 | @as(u32, header[i + 1]);
     }
 
     if (header.len % 2 != 0) {
-        sum += @as(u16, @intCast(header[header.len - 1])) << 8;
+        sum += @as(u32, header[header.len - 1]) << 8;
     }
 
     while (sum >> 16 != 0) {

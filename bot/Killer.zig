@@ -76,21 +76,24 @@ fn getPidByInode(self: Killer, inode: []const u8) !i32 {
         const pid = try std.fmt.parseInt(i32, entry.name, 10);
 
         const path = std.mem.concat(self.allocator, u8, &[_][]const u8{ "/proc/", entry.name, "/fd" }) catch unreachable;
+        defer self.allocator.free(path);
 
         var fd_path = try std.fs.cwd().openDir(path, .{ .iterate = true });
         defer fd_path.close();
 
+        const socket_match = std.mem.concat(self.allocator, u8, &[_][]const u8{ "socket:[", inode, "]" }) catch unreachable;
+        defer self.allocator.free(socket_match);
+
         var fd_iter = fd_path.iterate();
-        while (try fd_iter.next()) |fd_entry| { // nigga
+        while (try fd_iter.next()) |fd_entry| {
             const pathname = std.mem.concat(self.allocator, u8, &[_][]const u8{ path, "/", fd_entry.name }) catch unreachable;
+            defer self.allocator.free(pathname);
 
             var link_path: [std.fs.max_path_bytes]u8 = undefined;
 
             _ = try std.fs.realpath(pathname, &link_path);
 
-            const s = std.mem.concat(self.allocator, u8, &[_][]const u8{ "socket:[", inode, "]" }) catch unreachable;
-
-            if (std.mem.containsAtLeast(u8, &link_path, 1, s)) {
+            if (std.mem.containsAtLeast(u8, &link_path, 1, socket_match)) {
                 return pid;
             }
         }
