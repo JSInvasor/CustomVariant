@@ -26,6 +26,20 @@ pub fn init(dst_ip: [4]u8, protocol: u8) IpHeader {
     };
 }
 
+pub fn initRaw(dst_ip: [4]u8, payload_len: u16) IpHeader {
+    return .{
+        .ttl = helpers.randomInt(u8, 64, 255),
+        .protocol = 0xFF, // raw
+        .total_len = 20 + payload_len,
+        .src = helpers.randomIp(),
+        .dst = dst_ip,
+    };
+}
+
+pub fn marshal_raw(self: *const IpHeader) [20]u8 {
+    return self.marshal();
+}
+
 pub fn marshal(self: *const IpHeader) [20]u8 {
     const hdr_len = 20;
 
