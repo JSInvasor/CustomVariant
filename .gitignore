@@ -1,5 +1,0 @@
-# Build artifacts
-server_side/main
-bot/main
-*.o
-*.exe
